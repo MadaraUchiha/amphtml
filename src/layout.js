@@ -164,7 +164,7 @@ export function parseLength(s) {
  * @return {!LengthDef}
  */
 export function assertLength(length) {
-  assert(/^\d+(\.\d+)?(px|em|rem|vh|vw|vmin|vmax)$/.test(length),
+  assert(/^\d+(\.\d+)?(px|em|rem|vh|vw|vmin|vmax|%)$/.test(length),
       'Invalid length value: %s', length);
   return length;
 }

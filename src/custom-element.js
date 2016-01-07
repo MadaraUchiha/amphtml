@@ -537,11 +537,12 @@ export function createAmpElementProto(win, name, implementationClass) {
       this.aspectList_ = aspectList_ ? parseSizeList(aspectList_) : null;
     }
 
-    if (this.aspectList_ && this.layout_ === Layout.RESPONSIVE || this.sizerElement_) {
-      const newWidth = assertPercent(this.sizeList_.select(this.ownerDocument.defaultView));
-
-      this.style.width = assertLength(this.sizeList_.select(
-          this.ownerDocument.defaultView));
+    if (this.aspectList_ && this.layout_ ===
+        Layout.RESPONSIVE && this.sizerElement_) {
+      if (this.sizerElement_) {
+        this.sizerElement_.style.paddingTop = assertLength(
+          this.aspectList_.select(this.ownerDocument.defaultView));
+      }
     }
   };
 
