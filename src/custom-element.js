@@ -127,6 +127,7 @@ export function applyLayout_(element) {
   const widthAttr = element.getAttribute('width');
   const heightAttr = element.getAttribute('height');
   const sizesAttr = element.getAttribute('sizes');
+  const heightsAttr = element.getAttribute('heights');
 
   // Input layout attributes.
   const inputLayout = layoutAttr ? parseLayout(layoutAttr) : null;
@@ -189,6 +190,9 @@ export function applyLayout_(element) {
     assert(getLengthUnits(width) == getLengthUnits(height),
         'Length units should be the same for width and height: %s, %s',
         widthAttr, heightAttr);
+  } else {
+    assert(heightsAttr === null,
+        'Unexpected "heights" attribute for none-responsive layout');
   }
 
   // Apply UI.
@@ -531,17 +535,17 @@ export function createAmpElementProto(win, name, implementationClass) {
       this.style.width = assertLength(this.sizeList_.select(
           this.ownerDocument.defaultView));
     }
-    // Aspects.
-    if (this.aspectList_ === undefined) {
-      const aspectList_ = this.getAttribute('aspects');
-      this.aspectList_ = aspectList_ ? parseSizeList(aspectList_) : null;
+    // Heights.
+    if (this.heightsList_ === undefined) {
+      const heightsList_ = this.getAttribute('heights');
+      this.heightsList_ = heightsList_ ? parseSizeList(heightsList_) : null;
     }
 
-    if (this.aspectList_ && this.layout_ ===
+    if (this.heightsList_ && this.layout_ ===
         Layout.RESPONSIVE && this.sizerElement_) {
       if (this.sizerElement_) {
         this.sizerElement_.style.paddingTop = assertLength(
-          this.aspectList_.select(this.ownerDocument.defaultView));
+          this.heightsList_.select(this.ownerDocument.defaultView));
       }
     }
   };
