@@ -14,73 +14,61 @@
  * limitations under the License.
  */
 
-import {writeScript} from '../src/3p';
-import {assert} from '../src/asserts';
-
-
+import {loadScript, validateDataExits, validateExactlyOne} from '../src/3p';
 
 /**
  * @param {!Window} global
  * @param {!Object} data
  */
 export function taboola(global, data) {
+  // do not copy the following attributes from the 'data' object
+  // to _tablloa global object
+  const blackList = ['height', 'initialWindowHeight', 'initialWindowWidth',
+    'type', 'width', 'placement', 'mode'];
 
-    const blackList = ['height', 'initialWindowHeight', 'initialWindowWidth', 'type', 'width', 'placement', 'mode'];
+  // ensure we have vlid publisher, placement and mode
+  // and exactly one page-type
+  validateDataExits(data, ['publisher', 'placement', 'mode']);
+  validateExactlyOne(data, ['article', 'video', 'photo', 'search', 'category',
+    'homepage', 'others']);
 
-    const validateData = function(data, mandatoryFields) {
-        for (let i = 0; i < mandatoryFields.length; i++) {
-            const field = mandatoryFields[i];
-            assert(data[field],
-                'Missing attribute for amp-taboola: %s.', field);
-        }
-    };
+  // setup default values for referrer and url
+  const params = {
+    referrer: data.referrer || global.context.referrer,
+    url: data.url || global.context.canonicalUrl
+  };
 
-    const validateExactlyOne = function (data, alternativeFields) {
-        var countFileds = 0;
+  // copy none blacklisted attribute to the 'params' map
+  Object.keys(data).forEach(k => {
+    if (blackList.indexOf(k) === -1) {
+      params[k] = data[k];
+    }
+  });
 
-        for (let i = 0; i < alternativeFields.length; i++) {
-            const field = alternativeFields[i];
-            if (data[field]) {
-                countFileds += 1;
-            }
-        }
-        assert(countFileds === 1,
-            'Attribute mismatch. amp-taboola must contain exactly one of those attributes: %s',
-            alternativeFields.join(', '));
-    };
+  // push the two object into the '_taboola' global
+  (global._taboola = global._taboola || []).push([{
+    viewId: global.context.pageViewId,
+    publisher: data.publisher,
+    placement: data.placement,
+    mode: data.mode,
+    framework: 'amp',
+    container: 'c'
+  },
+    params]);
 
-    validateData(data, ['publisher', 'placement', 'mode']);
-    validateExactlyOne(data, ['article', 'video', 'photo', 'search', 'category', 'homepage', 'others']);
-
-    const params = {
-        referrer: data.referrer || global.context.referrer,
-        url: data.url || global.context.canonicalUrl
-    };
-
-
-    Object.keys(data).forEach(k => {
-        if (blackList.indexOf(k) === -1) {
-            params[k] = data[k]
-        }
-    });
-
-    (global._taboola = global._taboola || []).push([{
-            viewId: global.context.pageViewId,
-            publisher: data.publisher,
-            placement: data.placement,
-            mode:      data.mode,
-            framework:  'amp',
-            container: 'c'
-        },
-        params]);
-
-    global.context.observeIntersection(function(changes) {
-        changes.forEach(function(c) {
-            if (c.intersectionRect.height) {
-                global._taboola.push({visible: true, boundingClientRect: c.intersectionRect, placement: data.placement});
-            }
+  // install observation on entering/leaving the view
+  global.context.observeIntersection(function(changes) {
+    changes.forEach(function(c) {
+      if (c.intersectionRect.height) {
+        global._taboola.push({
+          visible: true,
+          boundingClientRect: c.intersectionRect,
+          placement: data.placement
         });
+      }
     });
+  });
 
-    writeScript(global, `https://cdn.taboola.com/libtrc/${data.publisher}/loader.js`);
+  // load the taboola loader asynchronously
+  loadScript(global, `https://cdn.taboola.com/libtrc/${encodeURIComponent(data.publisher)}/loader.js`);
 }
