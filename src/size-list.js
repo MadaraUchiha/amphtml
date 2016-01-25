@@ -41,7 +41,7 @@ let SizeListOptionDef;
  * @param {string} s
  * @return {!SizeList}
  */
-export function parseSizeList(s) {
+export function parseSizeList(s, allowPercentAsLength) {
   const sSizes = s.split(',');
   assert(sSizes.length > 0, 'sizes has to have at least one size');
   const sizes = [];
@@ -61,7 +61,8 @@ export function parseSizeList(s) {
       sizeStr = sSize;
       mediaStr = undefined;
     }
-    sizes.push({mediaQuery: mediaStr, size: assertLength(sizeStr)});
+    sizes.push({mediaQuery: mediaStr,
+      size: assertLength(sizeStr, allowPercentAsLength)});
   });
   return new SizeList(sizes);
 };

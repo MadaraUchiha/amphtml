@@ -538,14 +538,15 @@ export function createAmpElementProto(win, name, implementationClass) {
     // Heights.
     if (this.heightsList_ === undefined) {
       const heightsList_ = this.getAttribute('heights');
-      this.heightsList_ = heightsList_ ? parseSizeList(heightsList_) : null;
+      this.heightsList_ = heightsList_ ?
+          parseSizeList(heightsList_, true) : null;
     }
 
     if (this.heightsList_ && this.layout_ ===
         Layout.RESPONSIVE && this.sizerElement_) {
       if (this.sizerElement_) {
         this.sizerElement_.style.paddingTop = assertLength(
-          this.heightsList_.select(this.ownerDocument.defaultView));
+          this.heightsList_.select(this.ownerDocument.defaultView), true);
       }
     }
   };

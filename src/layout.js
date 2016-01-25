@@ -163,9 +163,18 @@ export function parseLength(s) {
  * @param {!LengthDef|string} length
  * @return {!LengthDef}
  */
-export function assertLength(length) {
-  assert(/^\d+(\.\d+)?(px|em|rem|vh|vw|vmin|vmax|%)$/.test(length),
-      'Invalid length value: %s', length);
+export function assertLength(length, allowPercentAsLength) {
+  let lengthRegexp;
+
+  if (allowPercentAsLength) {
+    lengthRegexp = /^\d+(\.\d+)?(px|em|rem|vh|vw|vmin|vmax|%)$/;
+  } else {
+    lengthRegexp = /^\d+(\.\d+)?(px|em|rem|vh|vw|vmin|vmax)$/;
+  }
+
+  assert(lengthRegexp.test(length),
+        'Invalid length value: %s', length);
+
   return length;
 }
 
