@@ -308,8 +308,8 @@ export function createAmpElementProto(win, name, implementationClass) {
     /** @private {!SizeList|null|undefined} */
     this.sizeList_;
 
-    /** @private {!AspectList_|null|undefined} */
-    this.aspectList_;
+    /** @private {!SizeList|null|undefined} */
+    this.heightsList_;
 
     /**
      * This element can be assigned by the {@link applyLayout_} to a child
@@ -537,9 +537,9 @@ export function createAmpElementProto(win, name, implementationClass) {
     }
     // Heights.
     if (this.heightsList_ === undefined) {
-      const heightsList_ = this.getAttribute('heights');
-      this.heightsList_ = heightsList_ ?
-          parseSizeList(heightsList_, true) : null;
+      const heightsAttr = this.getAttribute('heights');
+      this.heightsList_ = heightsAttr ?
+          parseSizeList(heightsAttr, /* allowPercent */ true) : null;
     }
 
     if (this.heightsList_ && this.layout_ ===
